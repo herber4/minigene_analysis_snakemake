@@ -2,11 +2,14 @@ library(tidyverse)
 
 
 
+#rep_three <- "/bootstraps/profs/"
+#rep_three <- "/bootstraps/oh_oh_one_profs"
+
+#rep_three <- "/bootstraps/o_o_o_five_profs"
 
 rep_one <- "/nia_txsome_rep_one/shapemapper/A/profs"
 rep_two <- "/nia_txsome_rep_two/shapemapper/A/profs"
-rep_three <- "/bootstraps/profs/"
-rep_three <- "/bootstraps/oh_oh_one_profs"
+rep_three <- "/bootstraps/one_205_profs"
 rep_one <- list.files(rep_one, pattern = "_profile\\.txt$", full.names = TRUE)
 rep_two <- list.files(rep_two, pattern = "_profile\\.txt$", full.names = TRUE)
 rep_three <- list.files(rep_three, pattern = "_profile\\.txt$", full.names = TRUE)
@@ -29,7 +32,8 @@ rep_three <- rep_three %>%
 rep_three$rep <- "Three"
 rep_one$source <- sub("^((?:[^_]+_){1}[^_]+).*", "\\1", rep_one$source)
 rep_two$source <- sub("^((?:[^_]+_){1}[^_]+).*", "\\1", rep_two$source)
-rep_three$source <- sub("^((?:[^_]+_){1}[^_]+).*", "\\1", rep_three$source)
+#rep_three$source <- sub("^((?:[^_]+_){1}[^_]+).*", "\\1", rep_three$source)
+rep_three$source <- sub("_One_205_profile\\.txt$", "", rep_three$source)
 
 one_filt <- rep_one %>%
   filter(Nucleotide >= 56,
@@ -132,3 +136,8 @@ within_rep %>%
                         "Rep_One_One_85")) %>%
   ggplot(aes(x = sample1, y = correlation, fill = source)) +
   geom_boxplot()
+
+
+
+write.table(corrs, file = "/R_scripts/NIA_txsome_bootstrapping_One_205.txt",
+            sep = "\t", quote = F, row.names = F)
