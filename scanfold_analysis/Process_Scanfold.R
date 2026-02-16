@@ -1,54 +1,31 @@
-library(data.table)
+library(ggplot2)
+library(dplyr)
+library(stringr)
 library(dplyr)
 
-process_profile_files <- function(directory, source_value, output_df_name) {
-  # Get a list of files with the specified pattern
-  profile_files <- list.files(directory, pattern = "win_120.stp_1.rnd_100.shfl_mono.out$", full.names = TRUE)
-  
-  # Create an empty data frame to store the final result
-  combined_df <- data.frame()
-  
-  # Loop through the profile files
-  for (profile_file in profile_files) {
-    # Get the name of the current file
-    file_name <- basename(profile_file)
-    
-    # Extract the directory name from the file name
-    subdir_name <- strsplit(file_name, ".win_27.stp_1.rnd_100.shfl_mono.out", fixed = TRUE)[[1]][1]
-    
-    # Read the file into a data frame
-    current_df <- fread(profile_file, sep = "\t", header = TRUE)
-    
-    # Add a "gene" column with the directory name
-    current_df$gene <- subdir_name
-    
-    # Rename the 11th column to "Score"
-    colnames(current_df)[11] <- "Score"
-    
-    # Append the current data frame to the combined data frame
-    combined_df <- rbind(combined_df, current_df)
-  }
-  
-  # Rename columns 5 and 6
-  colnames(combined_df)[5] <- "Z_score"
-  colnames(combined_df)[6] <- "P_score"
-  
-  # Clean up the gene names
-  combined_df$gene <- sub("\\..*", "", combined_df$gene)
-  
-  # Filter the combined data frame
-  red <- combined_df %>%
-    filter(Z_score < 10)
-  
-  # Add the source column
-  red$source <- source_value
-  
-  # Assign the filtered data frame to the desired output name
-  assign(output_df_name, red, envir = .GlobalEnv)
-  
-  # Clean up temporary variables
-  rm(current_df, subdir_name, file_name, profile_file, profile_files, directory, combined_df, red)
+file_list <- list.files("/data2/lackey_lab/DownloadedSequenceData/austin/MAP_NovaSeq/structure_similarity/scanfold/base_pairs", pattern = "\\.txt$", full.names = TRUE)  # List of file names in the directory
+
+combined_data <- data.frame()  # Initialize an empty dataframe to store the combined data
+
+for (file in file_list) {
+  data <- read.table(file, header = FALSE, skip = 1)  # Read the file
+  gene_name <- tools::file_path_sans_ext(basename(file))  # Extracting the file name without extension
+  data$gene <- gene_name  # Adding a column named 'gene' with the file name
+  combined_data <- bind_rows(combined_data, data)  # Append data to the combined dataframe
 }
 
-# Example usage:
-process_profile_files("/austin/MAP_NovaSeq/structure_similarity/scanfold/mono_out", "27_NS", "long_NS")
+combined_data <- rename(combined_data,
+                        nt = V1,
+                        i = V2,
+                        j = V3,
+                        avgMFE = V4,
+                        avgZ = V5,
+                        avgED = V6)
+
+
+# Now `combined_data` contains all the data from the individual files with a 'gene' column
+combined_data$nt <- gsub("[^0-9]", "", combined_data$nt)
+combined_data$Nucleotide <- combined_data$nt
+
+write.table(combined_data, file = "/data2/lackey_lab/DownloadedSequenceData/austin/MAP_NovaSeq/structure_similarity/scanfold_per_base_Z_scores.txt",
+            sep = "\t", row.names = F, quote = F)
