@@ -165,26 +165,42 @@ results <- wt %>%
   summarise(
     mean_C3SS_ratio = mean(C3SS_ratio, na.rm = TRUE),
     delta_C3SS_ratio = mean_C3SS_ratio - ref_mean,
-    p_value = t.test(C3SS_ratio, ref_vals)$p.value,
+    values = list(C3SS_ratio),
     .groups = "drop"
+  ) %>%
+  rowwise() %>%
+  mutate(
+    t_test = list(t.test(values, ref_vals)),
+    t_statistic = as.numeric(t_test$statistic),
+    df = as.numeric(t_test$parameter),
+    p_value = t_test$p.value
+  ) %>%
+  ungroup() %>%
+  select(-values, -t_test)
+
+results <- results %>%
+  mutate(
+    t_statistic = as.numeric(t_statistic),
+    df = as.numeric(df)
   )
 
 results <- results %>%
   mutate(p_adj = p.adjust(p_value, method = "BH"))
-
 results <- bind_rows(
   tibble(
     sample = "One_205",
     mean_C3SS_ratio = ref_mean,
     delta_C3SS_ratio = 0,
+    t_statistic = NA_real_,
+    df = NA_real_,
     p_value = NA_real_,
     p_adj = NA_real_
   ),
   results
 )
 
+results <- results %>%
+  mutate(p_adj = p.adjust(p_value, method = "BH"))
 
-hist(results$p_value)
-
-write.table(results, file = "dPSI_WToligo_vs_MToligo.txt",
+write.table(results, file = "MTRNA_vs_WTRNA_Statistics_table.txt",
             sep = "\t", row.names = F, quote = F)
