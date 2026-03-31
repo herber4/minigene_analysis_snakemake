@@ -5,16 +5,10 @@ library(ggrain)
 library(ggbeeswarm)
 setwd("/Users/herber4/Desktop/Dissertation/chapter_three/figures/in_vivo_splicing/")
 
-dpsi <- read.table(file = "/Users/herber4/Desktop/Dissertation/Dissertation_Aggregation/github_data/Figure_4_data.txt",
+dpsi <- read.table(file = "/Users/herber4/Desktop/Dissertation/Dissertation_Aggregation/github_data/K700E_vs_WT_Figure_5_Data.txt",
                    sep = "\t", header = TRUE)
 
-tmp <- read.table(file = "K700E_vs_WT_dPSI_fully_annotated.txt",
-                   sep = "\t", header = TRUE)
-tmp <- tmp[,c(1,4,5)]
-dpsi$dpsi_norm <- dpsi$delta_PSI-.105
-dpsi <- dpsi %>%
-  mutate(color = dpsi_norm >= 0.05)
-dpsi <- merge(dpsi, tmp, by = "sample")
+
 pdf(file = "../figure_5/K700E_vs_WT_BPS_SimScore_vs_dC3SS.pdf",
     height = 12, width = 10, paper = "letter")
 dpsi %>%
@@ -69,14 +63,8 @@ dev.off()
 summary(model)
 
 
-wtvsmt <- read.table(file = "../../../Dissertation_Aggregation/github_data/MTRNA_vs_WTRNA_Statistics_table.txt",
+wtvsmt <- read.table(file = "../../../Dissertation_Aggregation/github_data/WTvsMT_Statistics_Table_Figure_5_Data.txt",
                      sep = "\t", header = TRUE)
-
-wtvsmt <- merge(wtvsmt, tmp, by = "sample")
-tmp2 <- dpsi[,c(1,3)]
-wtvsmt <- merge(wtvsmt, tmp2, by = "sample")
-wtvsmt <- wtvsmt %>%
-  mutate(signif = p_adj < .05)
 
 
 pdf(file = "../figure_5/WT_vs_MT_RBP_Block_One_SimScore_vs_dC3SS.pdf",
