@@ -1,0 +1,34 @@
+### the parameter file used for the hairpin barcode design for the oligos
+build_str: BARCODE1-SOI-BARCODE2
+debug: false
+design_opts:
+  allowed_ss_mismatch: 165
+  allowed_ss_mismatch_barcodes: 4
+  increase_ens_defect: 50
+  max_attempts: 100
+  max_ens_defect: 9999.0
+  max_solutions: 10
+  score_method: increase
+num_of_processes: 1
+postprocess:
+  skip_edit_distance: false
+preprocess:
+  skip_edit_distance_check: false
+  skip_length_check: false
+  trim_p3: 0
+  trim_p5: 0
+segments:
+  BARCODE1:
+    buffer_3p_seq: AAA
+    buffer_3p_ss: '...'
+    length: 8
+    loop_seq: GCGAGUAGC
+    loop_ss: ((.....))
+    m_type: HAIRPIN
+  BARCODE2:
+    buffer_3p_seq: AAA
+    buffer_3p_ss: '...'
+    length: 8
+    loop_seq: GCGAGUAGC
+    loop_ss: ((.....))
+    m_type: HAIRPIN
